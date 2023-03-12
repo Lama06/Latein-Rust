@@ -1,49 +1,50 @@
-use crate::grammatik::{Kasus, Numerus};
+use crate::grammatik::{Genus, Kasus, Numerus};
 
-use super::Deklination;
-
-fn get_endung(stamm: &str, numerus: Numerus, kasus: Kasus) -> &'static str {
-    match numerus {
-        Numerus::Singular => match kasus {
-            Kasus::Nominativ => "us",
-            Kasus::Genitiv => "i",
-            Kasus::Dativ => "o",
-            Kasus::Akkusativ => "um",
-            Kasus::Ablativ => "o",
-            Kasus::Vokativ => {
-                if stamm.ends_with('i') {
-                    "i"
-                } else {
-                    "e"
-                }
-            }
-        },
-        Numerus::Plural => match kasus {
-            Kasus::Nominativ => "i",
-            Kasus::Genitiv => "orum",
-            Kasus::Dativ => "is",
-            Kasus::Akkusativ => "os",
-            Kasus::Ablativ => "is",
-            Kasus::Vokativ => "i",
-        },
-    }
-}
+use super::StammDeklination;
 
 pub struct ODeklinationMaskulinumFemininum<'a> {
     stamm: &'a str,
 }
 
-impl<'a> ODeklinationMaskulinumFemininum<'a> {
-    pub fn new(stamm: &'a str) -> Self {
+impl<'a> StammDeklination<'a> for ODeklinationMaskulinumFemininum<'a> {
+    const DEFAULT_GENUS: Option<Genus> = Some(Genus::Maskulinum);
+    const ALLOWS_MASKULINUM: bool = true;
+    const ALLOWS_FEMININUM: bool = true;
+    const ALLOWS_NEUTRUM: bool = false;
+
+    fn from_stamm(stamm: &'a str) -> Self {
         Self { stamm }
     }
-}
 
-impl<'a> Deklination for ODeklinationMaskulinumFemininum<'a> {
-    fn deklinieren(&self, numerus: Numerus, kasus: Kasus) -> String {
-        let mut result = String::new();
-        result.push_str(self.stamm);
-        result.push_str(get_endung(self.stamm, numerus, kasus));
-        result
+    fn get_stamm(&self) -> &'a str {
+        self.stamm
+    }
+
+    fn get_endung(numerus: Numerus, kasus: Kasus) -> Option<&'static str> {
+        Some(match numerus {
+            Numerus::Singular => match kasus {
+                Kasus::Nominativ => "us",
+                Kasus::Genitiv => "i",
+                Kasus::Dativ => "o",
+                Kasus::Akkusativ => "um",
+                Kasus::Ablativ => "o",
+                Kasus::Vokativ => return None,
+            },
+            Numerus::Plural => match kasus {
+                Kasus::Nominativ | Kasus::Vokativ => "i",
+                Kasus::Genitiv => "orum",
+                Kasus::Dativ => "is",
+                Kasus::Akkusativ => "os",
+                Kasus::Ablativ => "is",
+            },
+        })
+    }
+
+    fn get_endung_instance(&self, numerus: Numerus, kasus: Kasus) -> Option<&'static str> {
+        if let (Numerus::Singular, Kasus::Vokativ) = (numerus, kasus) {
+            Some(if self.stamm.ends_with('i') { "" } else { "e" })
+        } else {
+            None
+        }
     }
 }
