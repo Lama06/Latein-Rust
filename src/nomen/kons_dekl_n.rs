@@ -68,7 +68,10 @@ impl<'a> StammDeklination<'a> for PluralDeklination<KonsonantischeDeklinationNeu
     const REQUIRE_GENITIVE: bool = true;
 
     fn from_stamm(stamm: &'a str) -> Self {
-        PluralDeklination(KonsonantischeDeklinationNeutrum { nominativ_singular: "", stamm })
+        PluralDeklination(KonsonantischeDeklinationNeutrum {
+            nominativ_singular: "",
+            stamm,
+        })
     }
 
     fn get_stamm(&self) -> &str {

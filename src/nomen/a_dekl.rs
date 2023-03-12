@@ -1,6 +1,6 @@
 use crate::grammatik::{Genus, Kasus, Numerus};
 
-use super::{StammDeklination};
+use super::StammDeklination;
 
 pub struct ADeklination<'a> {
     stamm: &'a str,

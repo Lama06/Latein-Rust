@@ -59,7 +59,9 @@ impl<'a> ParsableDeklination<'a> for KonsonantischeDeklinationMaskulinumFemininu
     }
 }
 
-impl<'a> StammDeklination<'a> for PluralDeklination<KonsonantischeDeklinationMaskulinumFemininum<'a>> {
+impl<'a> StammDeklination<'a>
+    for PluralDeklination<KonsonantischeDeklinationMaskulinumFemininum<'a>>
+{
     const ALLOWS_MASKULINUM: bool = true;
     const ALLOWS_FEMININUM: bool = true;
     const ALLOWS_NEUTRUM: bool = false;
@@ -69,7 +71,10 @@ impl<'a> StammDeklination<'a> for PluralDeklination<KonsonantischeDeklinationMas
     const REQUIRE_GENITIVE: bool = true;
 
     fn from_stamm(stamm: &'a str) -> Self {
-        PluralDeklination(KonsonantischeDeklinationMaskulinumFemininum { nominativ_singular: "", stamm: stamm })
+        PluralDeklination(KonsonantischeDeklinationMaskulinumFemininum {
+            nominativ_singular: "",
+            stamm,
+        })
     }
 
     fn get_stamm(&self) -> &str {

@@ -64,10 +64,15 @@ fn main() {
         for numerus in Numerus::ALLE {
             for kasus in Kasus::ALLE {
                 let form = nomen.deklinieren(numerus, kasus);
-                println!("{:?} {:?} => {}", kasus, numerus, match form {
-                    Some(form) => form,
-                    None => "-",
-                });
+                println!(
+                    "{:?} {:?} => {}",
+                    kasus,
+                    numerus,
+                    match form {
+                        Some(form) => form,
+                        None => "-",
+                    }
+                );
             }
             println!();
         }

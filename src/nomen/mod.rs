@@ -6,7 +6,7 @@ use self::{
     a_dekl::ADeklination, e_dekl::EDeklination,
     kons_dekl_mf::KonsonantischeDeklinationMaskulinumFemininum,
     kons_dekl_n::KonsonantischeDeklinationNeutrum, o_dekl_mf::ODeklinationMaskulinumFemininum,
-    o_dekl_n::ODeklinationNeutrum, u_dekl::UDeklination, 
+    o_dekl_n::ODeklinationNeutrum, u_dekl::UDeklination,
 };
 
 mod a_dekl;
@@ -54,7 +54,7 @@ trait ParsableDeklination<'a>: Deklination + Sized {
     }
 }
 
-trait StammDeklination<'a>: Deklination + Sized {
+trait StammDeklination<'a>: Sized {
     const DEFAULT_GENUS: Option<Genus>;
     const ALLOWS_FEMININUM: bool;
     const ALLOWS_MASKULINUM: bool;
@@ -173,28 +173,43 @@ pub struct WörterbuchEintrag<'a> {
 }
 
 impl<'a> WörterbuchEintrag<'a> {
-    fn parse(&self) -> Option<(Genus, Box<dyn Deklination + 'a>)> {
-        macro_rules! parse_deklination {
-            ($deklination:path) => {
-                parse_deklination!(@PARSE $deklination);
-                parse_deklination!(@PARSE PluralDeklination::<$deklination>);
-            };
-            (@PARSE $deklination:path) => {
-                if let Some((genus, deklination)) = <$deklination>::parse_wörterbuch_eintrag(self) {
-                    return Some((genus, Box::new(deklination)))
-                }
-            };
+    fn parse_deklination<T>(&self) -> Option<(Genus, Box<dyn Deklination + 'a>)>
+    where
+        T: ParsableDeklination<'a> + 'a,
+        PluralDeklination<T>: ParsableDeklination<'a> + 'a,
+    {
+        match T::parse_wörterbuch_eintrag(self) {
+            Some((genus, deklination)) => Some((genus, Box::new(deklination))),
+            None => match PluralDeklination::<T>::parse_wörterbuch_eintrag(self) {
+                Some((genus, deklination)) => Some((genus, Box::new(deklination))),
+                None => None,
+            },
         }
+    }
 
-        parse_deklination!(KonsonantischeDeklinationMaskulinumFemininum);
-        parse_deklination!(KonsonantischeDeklinationNeutrum);
-        parse_deklination!(ODeklinationMaskulinumFemininum);
-        parse_deklination!(ODeklinationNeutrum);
-        parse_deklination!(ADeklination);
-        parse_deklination!(EDeklination);
-        parse_deklination!(UDeklination);
-
-        None
+    fn parse(&self) -> Option<(Genus, Box<dyn Deklination + 'a>)> {
+        if let result @ Some(_) =
+            self.parse_deklination::<KonsonantischeDeklinationMaskulinumFemininum>()
+        {
+            result
+        } else if let result @ Some(_) =
+            self.parse_deklination::<KonsonantischeDeklinationNeutrum>()
+        {
+            result
+        } else if let result @ Some(_) = self.parse_deklination::<ODeklinationMaskulinumFemininum>()
+        {
+            result
+        } else if let result @ Some(_) = self.parse_deklination::<ODeklinationNeutrum>() {
+            result
+        } else if let result @ Some(_) = self.parse_deklination::<ADeklination>() {
+            result
+        } else if let result @ Some(_) = self.parse_deklination::<EDeklination>() {
+            result
+        } else if let result @ Some(_) = self.parse_deklination::<UDeklination>() {
+            result
+        } else {
+            None
+        }
     }
 }
 
