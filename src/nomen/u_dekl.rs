@@ -4,6 +4,7 @@ use super::StammDeklination;
 
 pub struct UDeklination<'a> {
     stamm: &'a str,
+    plural: bool,
 }
 
 impl<'a> StammDeklination<'a> for UDeklination<'a> {
@@ -12,14 +13,18 @@ impl<'a> StammDeklination<'a> for UDeklination<'a> {
     const ALLOWS_FEMININUM: bool = true;
     const ALLOWS_NEUTRUM: bool = false;
 
-    const REQUIRE_GENITIVE: bool = true;
+    const REQUIRE_GENITIVE_SINGULAR: bool = true;
 
-    fn from_stamm(stamm: &'a str) -> Self {
-        Self { stamm }
+    fn new(stamm: &'a str, plural: bool) -> Self {
+        Self { stamm, plural }
     }
 
     fn get_stamm(&self) -> &'a str {
         self.stamm
+    }
+
+    fn is_plural(&self) -> bool {
+        self.plural
     }
 
     fn get_endung(numerus: Numerus, kasus: Kasus) -> Option<&'static str> {

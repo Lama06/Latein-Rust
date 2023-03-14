@@ -1,18 +1,23 @@
 use crate::grammatik::{Genus, Kasus, Numerus};
 
-use super::{Deklination, ParsableDeklination, PluralDeklination, StammDeklination};
+use super::{test_form, Deklination, ParsableDeklination};
 
 pub struct KonsonantischeDeklinationNeutrum<'a> {
-    nominativ_singular: &'a str,
+    nominativ_singular: Option<&'a str>,
     stamm: &'a str,
+    plural: bool,
 }
 
 impl<'a> Deklination for KonsonantischeDeklinationNeutrum<'a> {
     fn deklinieren(&self, numerus: Numerus, kasus: Kasus) -> Option<String> {
+        if self.plural && matches!(numerus, Numerus::Singular) {
+            return None;
+        }
+
         let endung = match numerus {
             Numerus::Singular => match kasus {
                 Kasus::Nominativ | Kasus::Vokativ | Kasus::Akkusativ => {
-                    return Some(String::from(self.nominativ_singular))
+                    return Some(String::from(self.nominativ_singular.unwrap()))
                 }
                 Kasus::Genitiv => "is",
                 Kasus::Dativ => "i",
@@ -27,7 +32,7 @@ impl<'a> Deklination for KonsonantischeDeklinationNeutrum<'a> {
             },
         };
 
-        let mut result = String::new();
+        let mut result = String::with_capacity(self.stamm.len() + endung.len());
         result.push_str(self.stamm);
         result.push_str(endung);
         Some(result)
@@ -45,49 +50,25 @@ impl<'a> ParsableDeklination<'a> for KonsonantischeDeklinationNeutrum<'a> {
             return None;
         };
 
-        let stamm = if genitiv.ends_with("is") {
-            &genitiv[..genitiv.len() - 2]
+        if genitiv.ends_with("is") {
+            Some(Self {
+                nominativ_singular: Some(nominativ),
+                stamm: &genitiv[..genitiv.len() - 2],
+                plural: false,
+            })
+        } else if genitiv.ends_with("um") {
+            let stamm = &genitiv[..genitiv.len() - 2];
+            if test_form(nominativ, stamm, "a") {
+                Some(Self {
+                    nominativ_singular: None,
+                    stamm,
+                    plural: true,
+                })
+            } else {
+                None
+            }
         } else {
-            return None;
-        };
-
-        Some(Self {
-            nominativ_singular: nominativ,
-            stamm,
-        })
-    }
-}
-
-impl<'a> StammDeklination<'a> for PluralDeklination<KonsonantischeDeklinationNeutrum<'a>> {
-    const ALLOWS_MASKULINUM: bool = false;
-    const ALLOWS_FEMININUM: bool = false;
-    const ALLOWS_NEUTRUM: bool = true;
-    const DEFAULT_GENUS: Option<Genus> = None;
-
-    const PLURAL: bool = true;
-    const REQUIRE_GENITIVE: bool = true;
-
-    fn from_stamm(stamm: &'a str) -> Self {
-        PluralDeklination(KonsonantischeDeklinationNeutrum {
-            nominativ_singular: "",
-            stamm,
-        })
-    }
-
-    fn get_stamm(&self) -> &str {
-        self.0.stamm
-    }
-
-    fn get_endung(numerus: Numerus, kasus: Kasus) -> Option<&'static str> {
-        Some(match numerus {
-            Numerus::Singular => unreachable!(),
-            Numerus::Plural => match kasus {
-                Kasus::Nominativ | Kasus::Vokativ => "a",
-                Kasus::Genitiv => "um",
-                Kasus::Dativ => "ibus",
-                Kasus::Akkusativ => "a",
-                Kasus::Ablativ => "ibus",
-            },
-        })
+            None
+        }
     }
 }
