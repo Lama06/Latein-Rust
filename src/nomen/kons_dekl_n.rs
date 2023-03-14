@@ -1,6 +1,6 @@
-use crate::grammatik::{Genus, Kasus, Numerus};
+use crate::grammatik::{test_form, Genus, Kasus, Numerus};
 
-use super::{test_form, Deklination, ParsableDeklination};
+use super::{Deklination, ParsableDeklination};
 
 pub struct KonsonantischeDeklinationNeutrum<'a> {
     nominativ_singular: Option<&'a str>,

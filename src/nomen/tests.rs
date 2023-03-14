@@ -1,5 +1,6 @@
-use super::{
-    Genus::{Femininum as F, Maskulinum as M, Neutrum as N},
+use super::{Nomen, WörterbuchEintrag};
+use crate::grammatik::{
+    Genus::{Maskulinum as M, Neutrum as N},
     Kasus::{
         Ablativ as Abl, Akkusativ as Akk, Dativ as Dat, Genitiv as Gen, Nominativ as Nom,
         Vokativ as Vok,
@@ -19,7 +20,7 @@ macro_rules! test_deklination {
             test_deklination!(@PRIVATE; $nominativ, None::<&str>, None::<Genus>, $($kasus $numerus => $form,)*);
         };
         (@PRIVATE; $nominativ:literal, $genitiv:expr, $genus:expr, $($kasus:ident $numerus:ident => $form:literal,)*) => {
-            #[allow(unused)] let Some(nomen) = Nomen::parse(WörterbuchEintrag {
+            #[allow(unused)] let Some(nomen) = Nomen::parse(&WörterbuchEintrag {
                 nominativ: $nominativ,
                 genitiv: $genitiv,
                 genus: $genus

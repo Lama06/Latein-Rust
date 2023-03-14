@@ -1,4 +1,4 @@
-use crate::grammatik::{Genus, Kasus, Numerus};
+use crate::grammatik::{test_form, Genus, Kasus, Numerus};
 
 use self::{
     a_dekl::ADeklination, e_dekl::EDeklination,
@@ -17,10 +17,6 @@ mod u_dekl;
 
 #[cfg(test)]
 mod tests;
-
-fn test_form(form: &str, stamm: &str, endung: &str) -> bool {
-    form.starts_with(stamm) && form.ends_with(endung) && form.len() == stamm.len() + endung.len()
-}
 
 trait Deklination {
     fn deklinieren(&self, numerus: Numerus, kasus: Kasus) -> Option<String>;
@@ -196,7 +192,7 @@ pub struct Nomen<'a> {
 }
 
 impl<'a> Nomen<'a> {
-    pub fn parse(eintrag: WörterbuchEintrag<'a>) -> Option<Self> {
+    pub fn parse(eintrag: &WörterbuchEintrag<'a>) -> Option<Self> {
         let (genus, deklination) = match eintrag.parse() {
             Some(result) => result,
             None => return None,

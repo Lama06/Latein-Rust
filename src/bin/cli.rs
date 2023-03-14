@@ -55,7 +55,7 @@ fn main() {
             },
             genus,
         };
-        let Some(nomen) = Nomen::parse(eintrag) else {
+        let Some(nomen) = Nomen::parse(&eintrag) else {
             println!("invalid arguments");
             continue;
         };

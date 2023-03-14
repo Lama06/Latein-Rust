@@ -1,3 +1,7 @@
+pub fn test_form(form: &str, stamm: &str, endung: &str) -> bool {
+    form.starts_with(stamm) && form.ends_with(endung) && form.len() == stamm.len() + endung.len()
+}
+
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
 pub enum Kasus {
     Nominativ,
@@ -46,4 +50,11 @@ impl Genus {
             Self::Neutrum => 'n',
         }
     }
+}
+
+#[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
+pub enum Steigerung {
+    Positiv,
+    Komperativ,
+    Superlativ,
 }

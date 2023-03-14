@@ -52,7 +52,7 @@ fn main() {
     let start = Instant::now();
 
     for i in 1..=ITERATIONS {
-        let Some(nomen) = Nomen::parse(WörterbuchEintrag {
+        let Some(nomen) = Nomen::parse(&WörterbuchEintrag {
             nominativ: &nominativ_singular,
             genitiv: match genitiv_singular {
                 Some(ref genitiv) => Some(genitiv),
