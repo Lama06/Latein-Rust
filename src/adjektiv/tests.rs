@@ -287,7 +287,7 @@ fn test_komperativ_ao() {
             Akk Pl M => "longiores",
             Abl Pl M => "longioribus",
             Vok Pl M => "longiores",
-    
+
             Nom Sg F => "longior",
             Gen Sg F => "longioris",
             Dat Sg F => "longiori",
@@ -300,7 +300,7 @@ fn test_komperativ_ao() {
             Akk Pl F => "longiores",
             Abl Pl F => "longioribus",
             Vok Pl F => "longiores",
-    
+
             Nom Sg N => "longius",
             Gen Sg N => "longioris",
             Dat Sg N => "longiori",
@@ -334,7 +334,7 @@ fn test_komperativ_kons() {
             Akk Pl M => "fortiores",
             Abl Pl M => "fortioribus",
             Vok Pl M => "fortiores",
-    
+
             Nom Sg F => "fortior",
             Gen Sg F => "fortioris",
             Dat Sg F => "fortiori",
@@ -347,7 +347,7 @@ fn test_komperativ_kons() {
             Akk Pl F => "fortiores",
             Abl Pl F => "fortioribus",
             Vok Pl F => "fortiores",
-    
+
             Nom Sg N => "fortius",
             Gen Sg N => "fortioris",
             Dat Sg N => "fortiori",
