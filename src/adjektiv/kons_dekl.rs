@@ -1,7 +1,8 @@
 use crate::grammatik::{test_form, Genus, Kasus, Numerus, Steigerung};
 
 use super::{
-    superlativ::SuperlativDeklination, Deklination, ParsableDeklination, WörterbuchEintrag,
+    komperativ::KomperativDeklination, superlativ::SuperlativDeklination, Deklination,
+    WörterbuchEintrag,
 };
 
 fn get_adverb_endung(stamm: &str) -> &'static str {
@@ -52,7 +53,7 @@ pub fn get_endung(genus: Genus, numerus: Numerus, kasus: Kasus) -> &'static str 
 pub struct KonsonantischeDeklination<'a> {
     nominativ_singular_maskulinum: &'a str,
     nominativ_singular_femininum: &'a str,
-    nominativ_singular_neutrum: &'a str,
+    nominativ_singular_neutrum: (&'a str, &'a str),
     stamm: &'a str,
 }
 
@@ -76,7 +77,7 @@ impl<'a> KonsonantischeDeklination<'a> {
         Some(Self {
             nominativ_singular_maskulinum: erste_form,
             nominativ_singular_femininum: erste_form,
-            nominativ_singular_neutrum: erste_form,
+            nominativ_singular_neutrum: (erste_form, ""),
             stamm,
         })
     }
@@ -92,7 +93,7 @@ impl<'a> KonsonantischeDeklination<'a> {
         };
 
         let stamm = if erste_form.ends_with("is") {
-            &zweite_form[..erste_form.len() - 2]
+            &erste_form[..erste_form.len() - 2]
         } else {
             return None;
         };
@@ -104,7 +105,7 @@ impl<'a> KonsonantischeDeklination<'a> {
         Some(Self {
             nominativ_singular_maskulinum: erste_form,
             nominativ_singular_femininum: erste_form,
-            nominativ_singular_neutrum: zweite_form,
+            nominativ_singular_neutrum: (stamm, "e"),
             stamm,
         })
     }
@@ -132,7 +133,7 @@ impl<'a> KonsonantischeDeklination<'a> {
         Some(Self {
             nominativ_singular_maskulinum: erste_form,
             nominativ_singular_femininum: erste_form,
-            nominativ_singular_neutrum: zweite_form,
+            nominativ_singular_neutrum: (zweite_form, ""),
             stamm,
         })
     }
@@ -160,52 +161,12 @@ impl<'a> KonsonantischeDeklination<'a> {
         Some(Self {
             nominativ_singular_maskulinum: erste_form,
             nominativ_singular_femininum: zweite_form,
-            nominativ_singular_neutrum: dritte_form,
+            nominativ_singular_neutrum: (dritte_form, ""),
             stamm,
         })
     }
-}
 
-impl<'a> Deklination<'a> for KonsonantischeDeklination<'a> {
-    fn adverb(&self) -> String {
-        let adverb_endung = get_adverb_endung(self.stamm);
-        let mut adverb = String::with_capacity(self.stamm.len() + adverb_endung.len());
-        adverb.push_str(self.stamm);
-        adverb.push_str(adverb_endung);
-        adverb
-    }
-
-    fn deklinieren(&self, genus: Genus, numerus: Numerus, kasus: Kasus) -> String {
-        if let (Kasus::Nominativ | Kasus::Vokativ, Numerus::Singular) = (kasus, numerus) {
-            return String::from(match genus {
-                Genus::Maskulinum => self.nominativ_singular_maskulinum,
-                Genus::Femininum => self.nominativ_singular_femininum,
-                Genus::Neutrum => self.nominativ_singular_neutrum,
-            });
-        }
-
-        if let (Kasus::Akkusativ, Numerus::Singular, Genus::Neutrum) = (kasus, numerus, genus) {
-            return String::from(self.nominativ_singular_neutrum);
-        }
-
-        let endung = get_endung(genus, numerus, kasus);
-        let mut form = String::with_capacity(self.stamm.len() + endung.len());
-        form.push_str(&self.stamm);
-        form.push_str(endung);
-        form
-    }
-
-    fn steigern(&self, steigerung: Steigerung) -> Option<Box<dyn Deklination<'a> + 'a>> {
-        Some(match steigerung {
-            Steigerung::Positiv => Box::new(self.clone()),
-            Steigerung::Komperativ => todo!(),
-            Steigerung::Superlativ => Box::new(SuperlativDeklination::new(self.stamm)),
-        })
-    }
-}
-
-impl<'a> ParsableDeklination<'a> for KonsonantischeDeklination<'a> {
-    fn parse(eintrag: &WörterbuchEintrag<'a>) -> Option<Self> {
+    pub fn parse(eintrag: &WörterbuchEintrag<'a>) -> Option<Self> {
         if let result @ Some(_) = Self::parse_einendig(eintrag) {
             result
         } else if let result @ Some(_) = Self::parse_zweiendig_short(eintrag) {
@@ -217,5 +178,54 @@ impl<'a> ParsableDeklination<'a> for KonsonantischeDeklination<'a> {
         } else {
             None
         }
+    }
+
+    fn get_nominativ_singular_neutrum(&self) -> String {
+        let mut form = String::with_capacity(
+            self.nominativ_singular_neutrum.0.len() + self.nominativ_singular_neutrum.1.len(),
+        );
+        form.push_str(self.nominativ_singular_neutrum.0);
+        form.push_str(self.nominativ_singular_neutrum.1);
+        form
+    }
+
+    pub fn adverb(&self) -> String {
+        let adverb_endung = get_adverb_endung(self.stamm);
+        let mut adverb = String::with_capacity(self.stamm.len() + adverb_endung.len());
+        adverb.push_str(self.stamm);
+        adverb.push_str(adverb_endung);
+        adverb
+    }
+
+    pub fn deklinieren(&self, genus: Genus, numerus: Numerus, kasus: Kasus) -> String {
+        if let (Kasus::Nominativ | Kasus::Vokativ, Numerus::Singular) = (kasus, numerus) {
+            return String::from(match genus {
+                Genus::Maskulinum => self.nominativ_singular_maskulinum,
+                Genus::Femininum => self.nominativ_singular_femininum,
+                Genus::Neutrum => return self.get_nominativ_singular_neutrum(),
+            });
+        }
+
+        if let (Kasus::Akkusativ, Numerus::Singular, Genus::Neutrum) = (kasus, numerus, genus) {
+            return self.get_nominativ_singular_neutrum();
+        }
+
+        let endung = get_endung(genus, numerus, kasus);
+        let mut form = String::with_capacity(self.stamm.len() + endung.len());
+        form.push_str(&self.stamm);
+        form.push_str(endung);
+        form
+    }
+
+    pub(super) fn steigern(&self, steigerung: Steigerung) -> Option<Deklination<'a>> {
+        Some(match steigerung {
+            Steigerung::Positiv => Deklination::Konsonantische(self.clone()),
+            Steigerung::Komperativ => {
+                Deklination::Komperativ(KomperativDeklination::new(self.stamm))
+            }
+            Steigerung::Superlativ => {
+                Deklination::Superlativ(SuperlativDeklination::new(self.stamm))
+            }
+        })
     }
 }

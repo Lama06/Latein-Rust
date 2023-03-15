@@ -10,10 +10,8 @@ impl<'a> KomperativDeklination<'a> {
     pub fn new(positiv_stamm: &'a str) -> Self {
         Self { positiv_stamm }
     }
-}
 
-impl<'a, 'b> Deklination<'b> for KomperativDeklination<'a> {
-    fn adverb(&self) -> String {
+    pub fn adverb(&self) -> String {
         const ENDUNG: &'static str = "ius";
         let mut adverb = String::with_capacity(self.positiv_stamm.len() + ENDUNG.len());
         adverb.push_str(self.positiv_stamm);
@@ -21,7 +19,7 @@ impl<'a, 'b> Deklination<'b> for KomperativDeklination<'a> {
         adverb
     }
 
-    fn deklinieren(&self, genus: Genus, numerus: Numerus, kasus: Kasus) -> String {
+    pub fn deklinieren(&self, genus: Genus, numerus: Numerus, kasus: Kasus) -> String {
         const STAMM_ERWEITERUNG: &'static str = "ior";
         const STAMM_ERWEITERUNG_NEUTRUM: &'static str = "ius";
 
@@ -58,7 +56,7 @@ impl<'a, 'b> Deklination<'b> for KomperativDeklination<'a> {
         form
     }
 
-    fn steigern(&self, _: Steigerung) -> Option<Box<dyn Deklination<'b> + 'b>> {
+    pub(super) fn steigern(&self, _: Steigerung) -> Option<Deklination<'static>> {
         None
     }
 }

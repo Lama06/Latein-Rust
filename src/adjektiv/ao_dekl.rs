@@ -1,7 +1,8 @@
 use crate::grammatik::{test_form, Genus, Kasus, Numerus, Steigerung};
 
 use super::{
-    superlativ::SuperlativDeklination, Deklination, ParsableDeklination, WörterbuchEintrag,
+    komperativ::KomperativDeklination, superlativ::SuperlativDeklination, Deklination,
+    WörterbuchEintrag,
 };
 
 pub const ADVERB_ENDUNG: &'static str = "e";
@@ -162,10 +163,22 @@ impl<'a> AODeklination<'a> {
             stamm,
         });
     }
-}
 
-impl<'a> Deklination<'a> for AODeklination<'a> {
-    fn deklinieren(&self, genus: Genus, numerus: Numerus, kasus: Kasus) -> String {
+    pub fn parse(eintrag: &WörterbuchEintrag<'a>) -> Option<Self> {
+        if let result @ Some(_) = Self::parse_a_um_single(eintrag) {
+            result
+        } else if let result @ Some(_) = Self::parse_a_um_short(eintrag) {
+            result
+        } else if let result @ Some(_) = Self::parse_a_um_long(eintrag) {
+            result
+        } else if let result @ Some(_) = Self::parse_er(eintrag) {
+            result
+        } else {
+            None
+        }
+    }
+
+    pub fn deklinieren(&self, genus: Genus, numerus: Numerus, kasus: Kasus) -> String {
         if let Some(nominativ_singular_maskulinum) = self.nominativ_singular_maskulinum {
             if let (Kasus::Nominativ, Numerus::Singular, Genus::Maskulinum) =
                 (kasus, numerus, genus)
@@ -181,34 +194,22 @@ impl<'a> Deklination<'a> for AODeklination<'a> {
         form
     }
 
-    fn adverb(&self) -> String {
+    pub fn adverb(&self) -> String {
         let mut adverb = String::with_capacity(self.stamm.len() + ADVERB_ENDUNG.len());
         adverb.push_str(self.stamm);
         adverb.push_str(ADVERB_ENDUNG);
         adverb
     }
 
-    fn steigern(&self, steigerung: Steigerung) -> Option<Box<dyn Deklination<'a> + 'a>> {
+    pub(super) fn steigern(&self, steigerung: Steigerung) -> Option<Deklination<'a>> {
         Some(match steigerung {
-            Steigerung::Positiv => Box::new(self.clone()),
-            Steigerung::Komperativ => todo!(),
-            Steigerung::Superlativ => Box::new(SuperlativDeklination::new(self.stamm)),
+            Steigerung::Positiv => Deklination::Ao(self.clone()),
+            Steigerung::Komperativ => {
+                Deklination::Komperativ(KomperativDeklination::new(self.stamm))
+            }
+            Steigerung::Superlativ => {
+                Deklination::Superlativ(SuperlativDeklination::new(self.stamm))
+            }
         })
-    }
-}
-
-impl<'a> ParsableDeklination<'a> for AODeklination<'a> {
-    fn parse(eintrag: &WörterbuchEintrag<'a>) -> Option<Self> {
-        if let result @ Some(_) = Self::parse_a_um_single(eintrag) {
-            result
-        } else if let result @ Some(_) = Self::parse_a_um_short(eintrag) {
-            result
-        } else if let result @ Some(_) = Self::parse_a_um_long(eintrag) {
-            result
-        } else if let result @ Some(_) = Self::parse_er(eintrag) {
-            result
-        } else {
-            None
-        }
     }
 }

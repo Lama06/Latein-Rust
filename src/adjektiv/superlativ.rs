@@ -14,18 +14,8 @@ impl<'a> SuperlativDeklination<'a> {
         Self { positiv_stamm }
     }
 
-    fn get_stamm_erweiterung(&self) -> &'static str {
-        if self.positiv_stamm.ends_with("r") {
-            "rim"
-        } else {
-            "issim"
-        }
-    }
-}
-
-impl<'a, 'b> Deklination<'b> for SuperlativDeklination<'a> {
-    fn adverb(&self) -> String {
-        let stamm_erweiterung = self.get_stamm_erweiterung();
+    pub fn adverb(&self) -> String {
+        let stamm_erweiterung = "issim";
         let mut adverb = String::with_capacity(
             self.positiv_stamm.len() + stamm_erweiterung.len() + ADVERB_ENDUNG.len(),
         );
@@ -35,8 +25,8 @@ impl<'a, 'b> Deklination<'b> for SuperlativDeklination<'a> {
         adverb
     }
 
-    fn deklinieren(&self, genus: Genus, numerus: Numerus, kasus: Kasus) -> String {
-        let stamm_erweiterung = self.get_stamm_erweiterung();
+    pub fn deklinieren(&self, genus: Genus, numerus: Numerus, kasus: Kasus) -> String {
+        let stamm_erweiterung = "issim";
         let endung = get_endung(genus, numerus, kasus);
         let mut form = String::with_capacity(
             self.positiv_stamm.len() + stamm_erweiterung.len() + endung.len(),
@@ -47,7 +37,7 @@ impl<'a, 'b> Deklination<'b> for SuperlativDeklination<'a> {
         form
     }
 
-    fn steigern(&self, _: Steigerung) -> Option<Box<dyn Deklination<'b> + 'b>> {
+    pub(super) fn steigern(&self, _: Steigerung) -> Option<Deklination<'static>> {
         None
     }
 }
