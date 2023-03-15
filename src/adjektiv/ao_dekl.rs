@@ -70,8 +70,16 @@ pub struct AODeklination<'a> {
 impl<'a> AODeklination<'a> {
     // bonus
     fn parse_a_um_single(eintrag: &WörterbuchEintrag<'a>) -> Option<Self> {
-        let stamm = if eintrag.erste_form.ends_with("us") {
-            &eintrag.erste_form[..eintrag.erste_form.len() - 2]
+        let &WörterbuchEintrag {
+            erste_form,
+            zweite_form: None,
+            dritte_form: None,
+        } = eintrag else {
+            return None;
+        };
+
+        let stamm = if erste_form.ends_with("us") {
+            &erste_form[..erste_form.len() - 2]
         } else {
             return None;
         };
@@ -84,17 +92,17 @@ impl<'a> AODeklination<'a> {
 
     // bonus, bona, bonum
     fn parse_a_um_long(eintrag: &WörterbuchEintrag<'a>) -> Option<Self> {
-        let stamm = if eintrag.erste_form.ends_with("us") {
-            &eintrag.erste_form[..eintrag.erste_form.len() - 2]
-        } else {
-            return None;
-        };
-
         let &WörterbuchEintrag {
-            erste_form: _,
+            erste_form,
             zweite_form: Some(zweite_form),
             dritte_form: Some(dritte_form),
         } = eintrag else {
+            return None;
+        };
+
+        let stamm = if erste_form.ends_with("us") {
+            &erste_form[..erste_form.len() - 2]
+        } else {
             return None;
         };
 
@@ -110,23 +118,19 @@ impl<'a> AODeklination<'a> {
 
     // bonus, a, um
     fn parse_a_um_short(eintrag: &WörterbuchEintrag<'a>) -> Option<Self> {
-        let stamm = if eintrag.erste_form.ends_with("us") {
-            &eintrag.erste_form[..eintrag.erste_form.len() - 2]
-        } else {
-            return None;
-        };
-
         let &WörterbuchEintrag {
-            erste_form: _,
-            zweite_form: Some(zweite_form),
-            dritte_form: Some(dritte_form),
+            erste_form,
+            zweite_form: Some("a"),
+            dritte_form: Some("um"),
         } = eintrag else {
             return None;
         };
 
-        if zweite_form != "a" || dritte_form != "um" {
+        let stamm = if erste_form.ends_with("us") {
+            &erste_form[..erste_form.len() - 2]
+        } else {
             return None;
-        }
+        };
 
         Some(Self {
             nominativ_singular_maskulinum: None,
@@ -189,7 +193,7 @@ impl<'a> AODeklination<'a> {
 
         let endung = get_endung(genus, numerus, kasus);
         let mut form = String::with_capacity(self.stamm.len() + endung.len());
-        form.push_str(&self.stamm);
+        form.push_str(self.stamm);
         form.push_str(endung);
         form
     }

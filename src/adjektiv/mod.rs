@@ -53,8 +53,8 @@ impl<'a> Deklination<'a> {
         match *self {
             Self::Ao(ref deklination) => deklination.steigern(steigerung),
             Self::Konsonantische(ref deklination) => deklination.steigern(steigerung),
-            Self::Komperativ(ref deklination) => deklination.steigern(steigerung),
-            Self::Superlativ(ref deklination) => deklination.steigern(steigerung),
+            Self::Komperativ(_) => None,
+            Self::Superlativ(_) => None,
         }
     }
 }
@@ -109,6 +109,10 @@ impl<'a> Adjektiv<'a> {
         self.deklination.deklinieren(genus, numerus, kasus)
     }
 
+    pub fn adverb(&self) -> String {
+        self.deklination.adverb()
+    }
+
     pub fn steigern(&self, steigerung: Steigerung) -> Option<Self> {
         Some(Self {
             deklination: match self.deklination.steigern(steigerung) {
@@ -116,9 +120,5 @@ impl<'a> Adjektiv<'a> {
                 None => return None,
             },
         })
-    }
-
-    pub fn adverb(&self) -> String {
-        self.deklination.adverb()
     }
 }

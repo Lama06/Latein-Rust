@@ -1,15 +1,12 @@
-use super::Adjektiv;
-use crate::{
-    adjektiv::WörterbuchEintrag,
-    grammatik::{
-        Genus::{Femininum as F, Maskulinum as M, Neutrum as N},
-        Kasus::{
-            Ablativ as Abl, Akkusativ as Akk, Dativ as Dat, Genitiv as Gen, Nominativ as Nom,
-            Vokativ as Vok,
-        },
-        Numerus::{Plural as Pl, Singular as Sg},
-        Steigerung,
+use super::{Adjektiv, WörterbuchEintrag};
+use crate::grammatik::{
+    Genus::{Femininum as F, Maskulinum as M, Neutrum as N},
+    Kasus::{
+        Ablativ as Abl, Akkusativ as Akk, Dativ as Dat, Genitiv as Gen, Nominativ as Nom,
+        Vokativ as Vok,
     },
+    Numerus::{Plural as Pl, Singular as Sg},
+    Steigerung,
 };
 
 macro_rules! test_deklination {
@@ -273,6 +270,100 @@ fn test_kons_dekl_dreieindig() {
 }
 
 #[test]
+fn test_komperativ_ao() {
+    test_deklination! {
+        adjektiv => Adjektiv::parse(&WörterbuchEintrag::from_one("longus")).unwrap()
+            .steigern(Steigerung::Komperativ).unwrap();
+
+            Nom Sg M => "longior",
+            Gen Sg M => "longioris",
+            Dat Sg M => "longiori",
+            Akk Sg M => "longiorem",
+            Abl Sg M => "longiori",
+            Vok Sg M => "longior",
+            Nom Pl M => "longiores",
+            Gen Pl M => "longiorium",
+            Dat Pl M => "longioribus",
+            Akk Pl M => "longiores",
+            Abl Pl M => "longioribus",
+            Vok Pl M => "longiores",
+    
+            Nom Sg F => "longior",
+            Gen Sg F => "longioris",
+            Dat Sg F => "longiori",
+            Akk Sg F => "longiorem",
+            Abl Sg F => "longiori",
+            Vok Sg F => "longior",
+            Nom Pl F => "longiores",
+            Gen Pl F => "longiorium",
+            Dat Pl F => "longioribus",
+            Akk Pl F => "longiores",
+            Abl Pl F => "longioribus",
+            Vok Pl F => "longiores",
+    
+            Nom Sg N => "longius",
+            Gen Sg N => "longioris",
+            Dat Sg N => "longiori",
+            Akk Sg N => "longius",
+            Abl Sg N => "longiori",
+            Vok Sg N => "longius",
+            Nom Pl N => "longioria",
+            Gen Pl N => "longiorium",
+            Dat Pl N => "longioribus",
+            Akk Pl N => "longioria",
+            Abl Pl N => "longioribus",
+            Vok Pl N => "longioria",
+    };
+}
+
+#[test]
+fn test_komperativ_kons() {
+    test_deklination! {
+        adjektiv => Adjektiv::parse(&WörterbuchEintrag::from_two("fortis", "e")).unwrap()
+            .steigern(Steigerung::Komperativ).unwrap();
+
+            Nom Sg M => "fortior",
+            Gen Sg M => "fortioris",
+            Dat Sg M => "fortiori",
+            Akk Sg M => "fortiorem",
+            Abl Sg M => "fortiori",
+            Vok Sg M => "fortior",
+            Nom Pl M => "fortiores",
+            Gen Pl M => "fortiorium",
+            Dat Pl M => "fortioribus",
+            Akk Pl M => "fortiores",
+            Abl Pl M => "fortioribus",
+            Vok Pl M => "fortiores",
+    
+            Nom Sg F => "fortior",
+            Gen Sg F => "fortioris",
+            Dat Sg F => "fortiori",
+            Akk Sg F => "fortiorem",
+            Abl Sg F => "fortiori",
+            Vok Sg F => "fortior",
+            Nom Pl F => "fortiores",
+            Gen Pl F => "fortiorium",
+            Dat Pl F => "fortioribus",
+            Akk Pl F => "fortiores",
+            Abl Pl F => "fortioribus",
+            Vok Pl F => "fortiores",
+    
+            Nom Sg N => "fortius",
+            Gen Sg N => "fortioris",
+            Dat Sg N => "fortiori",
+            Akk Sg N => "fortius",
+            Abl Sg N => "fortiori",
+            Vok Sg N => "fortius",
+            Nom Pl N => "fortioria",
+            Gen Pl N => "fortiorium",
+            Dat Pl N => "fortioribus",
+            Akk Pl N => "fortioria",
+            Abl Pl N => "fortioribus",
+            Vok Pl N => "fortioria",
+    };
+}
+
+#[test]
 fn test_superlativ_ao() {
     test_deklination! {
         adjektiv => Adjektiv::parse(&WörterbuchEintrag::from_one("longus")).unwrap()
@@ -320,6 +411,53 @@ fn test_superlativ_ao() {
 }
 
 #[test]
+fn test_superlativ_kons() {
+    test_deklination! {
+        adjektiv => Adjektiv::parse(&WörterbuchEintrag::from_three("acer", "acris", "acre")).unwrap()
+            .steigern(Steigerung::Superlativ).unwrap();
+
+        Nom Sg M => "acrissimus",
+        Gen Sg M => "acrissimi",
+        Dat Sg M => "acrissimo",
+        Akk Sg M => "acrissimum",
+        Abl Sg M => "acrissimo",
+        Vok Sg M => "acrissime",
+        Nom Pl M => "acrissimi",
+        Gen Pl M => "acrissimorum",
+        Dat Pl M => "acrissimis",
+        Akk Pl M => "acrissimos",
+        Abl Pl M => "acrissimis",
+        Vok Pl M => "acrissimi",
+
+        Nom Sg F => "acrissima",
+        Gen Sg F => "acrissimae",
+        Dat Sg F => "acrissimae",
+        Akk Sg F => "acrissimam",
+        Abl Sg F => "acrissima",
+        Vok Sg F => "acrissima",
+        Nom Pl F => "acrissimae",
+        Gen Pl F => "acrissimarum",
+        Dat Pl F => "acrissimis",
+        Akk Pl F => "acrissimas",
+        Abl Pl F => "acrissimis",
+        Vok Pl F => "acrissimae",
+
+        Nom Sg N => "acrissimum",
+        Gen Sg N => "acrissimi",
+        Dat Sg N => "acrissimo",
+        Akk Sg N => "acrissimum",
+        Abl Sg N => "acrissimo",
+        Vok Sg N => "acrissimum",
+        Nom Pl N => "acrissima",
+        Gen Pl N => "acrissimorum",
+        Dat Pl N => "acrissimis",
+        Akk Pl N => "acrissima",
+        Abl Pl N => "acrissimis",
+        Vok Pl N => "acrissima",
+    };
+}
+
+#[test]
 fn test_adverb() {
     assert_eq!(
         Adjektiv::parse(&WörterbuchEintrag::from_one("bonus"))
@@ -352,5 +490,21 @@ fn test_adverb() {
             .unwrap()
             .adverb(),
         "vehementer"
+    );
+    assert_eq!(
+        Adjektiv::parse(&WörterbuchEintrag::from_one("longus"))
+            .unwrap()
+            .steigern(Steigerung::Superlativ)
+            .unwrap()
+            .adverb(),
+        "longissime"
+    );
+    assert_eq!(
+        Adjektiv::parse(&WörterbuchEintrag::from_two("vehemens", "vehementis"))
+            .unwrap()
+            .steigern(Steigerung::Superlativ)
+            .unwrap()
+            .adverb(),
+        "vehementissime"
     );
 }

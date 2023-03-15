@@ -68,7 +68,7 @@ trait StammDeklination<'a>: Sized {
 
     fn get_endung(numerus: Numerus, kasus: Kasus) -> Option<&'static str>;
 
-    fn get_endung_instance(&self, numerus: Numerus, kasus: Kasus) -> Option<&'static str> {
+    fn get_endung_instance(&self, _: Numerus, _: Kasus) -> Option<&'static str> {
         None
     }
 }

@@ -5,14 +5,6 @@ use super::{
     WörterbuchEintrag,
 };
 
-fn get_adverb_endung(stamm: &str) -> &'static str {
-    if stamm.ends_with("nt") {
-        "er"
-    } else {
-        "iter"
-    }
-}
-
 pub fn get_endung(genus: Genus, numerus: Numerus, kasus: Kasus) -> &'static str {
     match genus {
         Genus::Maskulinum | Genus::Femininum => match numerus {
@@ -53,7 +45,7 @@ pub fn get_endung(genus: Genus, numerus: Numerus, kasus: Kasus) -> &'static str 
 pub struct KonsonantischeDeklination<'a> {
     nominativ_singular_maskulinum: &'a str,
     nominativ_singular_femininum: &'a str,
-    nominativ_singular_neutrum: (&'a str, &'a str),
+    nominativ_singular_neutrum: (&'a str, &'a str), // Kann aus zwei Teilen bestehen, zB bei fortis, e
     stamm: &'a str,
 }
 
@@ -86,7 +78,7 @@ impl<'a> KonsonantischeDeklination<'a> {
     fn parse_zweiendig_short(eintrag: &WörterbuchEintrag<'a>) -> Option<Self> {
         let &WörterbuchEintrag {
             erste_form,
-            zweite_form: Some(zweite_form),
+            zweite_form: Some("e"),
             dritte_form: None,
         } = eintrag else {
             return None;
@@ -97,10 +89,6 @@ impl<'a> KonsonantischeDeklination<'a> {
         } else {
             return None;
         };
-
-        if zweite_form != "e" {
-            return None;
-        }
 
         Some(Self {
             nominativ_singular_maskulinum: erste_form,
@@ -190,7 +178,11 @@ impl<'a> KonsonantischeDeklination<'a> {
     }
 
     pub fn adverb(&self) -> String {
-        let adverb_endung = get_adverb_endung(self.stamm);
+        let adverb_endung = if self.stamm.ends_with("nt") {
+            "er"
+        } else {
+            "iter"
+        };
         let mut adverb = String::with_capacity(self.stamm.len() + adverb_endung.len());
         adverb.push_str(self.stamm);
         adverb.push_str(adverb_endung);
@@ -212,7 +204,7 @@ impl<'a> KonsonantischeDeklination<'a> {
 
         let endung = get_endung(genus, numerus, kasus);
         let mut form = String::with_capacity(self.stamm.len() + endung.len());
-        form.push_str(&self.stamm);
+        form.push_str(self.stamm);
         form.push_str(endung);
         form
     }
